@@ -60,10 +60,17 @@ Agents ask for a decision with an MCP tool, and Hindie answers in the Decisions 
 - **Per session.** Every session records which account it runs on.
   When the server starts a Claude turn, it sets `CLAUDE_CODE_OAUTH_TOKEN` in that turn's env (the `sdkOptions.env` line in `server/modules/providers/list/claude/claude-runtime.provider.js`).
   All accounts share the one `~/.claude`, so history is shared and any account can resume any session.
-- **Hitting the limit.** When a turn fails with a usage-limit error, the server marks that account as limited until its reset time.
-  It moves the session to the account with the most left, and queues a "continue where you left off" message.
-  New sessions start on the account with the most left unless Hindie picks one.
-- **No accounts added.** The app falls back to the box's normal login in `~/.claude/.credentials.json`, which is how CloudCLI works today.
+- **Balancing.** Every reply carries a `rate_limit_event` with how much of the 5-hour and weekly limits that account has used.
+  The server keeps the latest reading per account.
+  An account's load is the higher of its two readings, and an account with no reading yet counts as unused.
+  New sessions start on the account with the lowest load unless Hindie picks one.
+  A running session stays on its account, because switching loses the prompt cache and costs more usage.
+  It moves only when its account is limited, or when its weekly use is 25 points or more above the lightest account.
+- **Hitting the limit.** When a turn ends on a usage limit (a `rejected` rate limit event, or the limit message in the result), the server marks that account as limited until its reset time.
+  It moves the session to the lightest account and queues a "continue where you left off" message.
+  When every account is limited, it notifies Hindie with the earliest reset time.
+- **The box login counts as an account.** "Box login" uses `~/.claude/.credentials.json` and needs no token, so one added token is enough for two accounts.
+  With no tokens added, the app works the way CloudCLI does today.
 
 ### Orchestrator
 
@@ -101,8 +108,9 @@ After a power-off, start the instance from AWS and the service starts on boot.
 
 ## What Hindie does once
 
-1. Open `http://hindie-box:3001` and create the CloudCLI login (first visit asks for a username and password).
-2. On the Mac, for each Claude account: run `claude setup-token`, sign in to that account in the browser, and copy the token.
+1. Open `http://hindie-box:3001` and sign in as `hindie` with the password in `~/agent-desk-login.txt` on the box.
+   Change it in Settings if you like.
+2. On the Mac, for each Claude account the box is not already logged in to: run `claude setup-token`, sign in to that account in the browser, and copy the token.
 3. In Agent Desk, Accounts, Add account: paste each token and give it a name.
 
 ## Status
@@ -111,7 +119,7 @@ Updated as work lands.
 A new session continues from the first unchecked item.
 
 - [x] Fork, rename to NE1NN/agent-desk, branch `agent-desk`, this doc
-- [ ] Install and run stock CloudCLI on the box as a systemd user service on :3001
+- [x] Install and run stock CloudCLI on the box as a systemd user service on :3001, login created
 - [ ] Decisions backend: tables, MCP tools, media store, queued answers, system prompt guide
 - [ ] Decisions page in the UI
 - [ ] Accounts backend: token store, per-session account, limit detection and switching
