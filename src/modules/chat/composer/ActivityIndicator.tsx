@@ -52,10 +52,12 @@ export default function ActivityIndicator({ activity, onAbort, onStopBackground,
   const { t } = useTranslation('chat');
   const [renderedActivity, setRenderedActivity] = useState<SessionActivity | null>(activity);
   const [isExiting, setIsExiting] = useState(false);
-  // The activity "Stop all" was pressed for: a second press for the same work
-  // would find nothing left to stop and come back as an error, so the button
-  // stays disabled until the activity changes.
-  const [stopRequestedFor, setStopRequestedFor] = useState<SessionActivity | null>(null);
+  // The ids of the tasks "Stop all" was pressed for. The server stops them all
+  // at once, but they report back one by one and the pill then animates out,
+  // each step a new activity; a press in between would find nothing left to
+  // stop and come back as an error. So the button stays disabled while the
+  // pill lists only those tasks, and returns for work started after the press.
+  const [stopRequestedForTaskIds, setStopRequestedForTaskIds] = useState<ReadonlySet<string> | null>(null);
   const startedAt = renderedActivity?.startedAt ?? null;
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -94,6 +96,9 @@ export default function ActivityIndicator({ activity, onAbort, onStopBackground,
     : (renderedActivity.statusText || actionWords[Math.floor(elapsedSeconds / 4) % actionWords.length])
       .replace(/\.+$/, '');
   const detail = isBackground ? describeBackgroundTasks(renderedActivity.tasks ?? [], t) : '';
+  const ownTasks = isBackground ? ownBackgroundTasks(renderedActivity.tasks ?? []) : [];
+  const stopAlreadyRequested = stopRequestedForTaskIds !== null
+    && ownTasks.every((task) => stopRequestedForTaskIds.has(task.taskId));
 
   const minutes = Math.floor(elapsedSeconds / 60);
   const seconds = elapsedSeconds % 60;
@@ -147,12 +152,12 @@ export default function ActivityIndicator({ activity, onAbort, onStopBackground,
 
         {/* No Esc shortcut here on purpose: a stray Esc must not end a long
             workflow the user is no longer watching. */}
-        {isBackground && onStopBackground && ownBackgroundTasks(renderedActivity.tasks ?? []).length > 0 && (
+        {isBackground && onStopBackground && ownTasks.length > 0 && (
           <button
             type="button"
-            disabled={stopRequestedFor === renderedActivity}
+            disabled={stopAlreadyRequested}
             onClick={() => {
-              setStopRequestedFor(renderedActivity);
+              setStopRequestedForTaskIds(new Set(ownTasks.map((task) => task.taskId)));
               onStopBackground();
             }}
             className={`${tabSurfaceClassName} pointer-events-auto gap-1.5 text-muted-foreground hover:bg-card hover:text-destructive disabled:cursor-default disabled:opacity-60 disabled:hover:text-muted-foreground`}

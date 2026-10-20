@@ -67,6 +67,55 @@ test('Stop all asks once: a second click before the work settles sends nothing',
   assert.equal(onStopBackground.mock.calls.length, 1);
 });
 
+test('Stop all stays disabled while the tasks it stopped report back one by one', () => {
+  // Each `stopped` notification republishes the pill with the tasks left, and
+  // the last one takes it down through the exit animation: every step is a new
+  // activity, and a press during any of them would still find nothing to stop.
+  const onStopBackground = vi.fn();
+  const first = task({ taskId: 'a1', toolUseId: 'toolu_agent_1', taskType: 'local_agent', workflowName: undefined });
+  const second = task({ taskId: 'a2', toolUseId: 'toolu_agent_2', taskType: 'local_agent', workflowName: undefined });
+  const view = render(<ActivityIndicator activity={backgroundActivity([first, second])} onStopBackground={onStopBackground} />);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Stop all' }));
+  view.rerender(<ActivityIndicator activity={backgroundActivity([second])} onStopBackground={onStopBackground} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Stop all' }));
+  view.rerender(<ActivityIndicator activity={null} onStopBackground={onStopBackground} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Stop all' }));
+
+  assert.equal(onStopBackground.mock.calls.length, 1);
+});
+
+test('Stop all is offered again for work started after the press', () => {
+  const onStopBackground = vi.fn();
+  const view = render(<ActivityIndicator activity={backgroundActivity([task()])} onStopBackground={onStopBackground} />);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Stop all' }));
+  view.rerender(
+    <ActivityIndicator
+      activity={backgroundActivity([task({ taskId: 'a3', toolUseId: 'toolu_agent_3', taskType: 'local_agent', workflowName: undefined })])}
+      onStopBackground={onStopBackground}
+    />,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Stop all' }));
+
+  assert.equal(onStopBackground.mock.calls.length, 2);
+});
+
+test('a response in flight offers its Stop, not Stop all, even with tasks running', () => {
+  render(
+    <ActivityIndicator
+      activity={{ statusText: 'Thinking', canInterrupt: true, startedAt: Date.now(), tasks: [task()] }}
+      onAbort={() => {}}
+      onStopBackground={() => {}}
+    />,
+  );
+
+  assert.ok(screen.getByRole('button', { name: 'Stop' }));
+  // Compared as a boolean: a failing assertion on the element itself would
+  // serialize the whole jsdom node into the report.
+  assert.equal(screen.queryByRole('button', { name: 'Stop all' }) === null, true, 'no Stop all while a response is in flight');
+});
+
 test('an agent and a command are named by what they were asked to do; several tasks by their count', () => {
   const agent = render(
     <ActivityIndicator activity={backgroundActivity([task({ taskType: 'local_agent', description: 'Survey the repo', workflowName: undefined })])} />,
