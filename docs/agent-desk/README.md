@@ -1,7 +1,7 @@
 # Agent Desk
 
 Agent Desk is Hindie's web app for running Claude Code agents on hindie-box.
-It has three parts: a session list, a decision inbox, and multiple Claude accounts.
+It has four parts: a session list, a decision inbox, multiple Claude accounts, and an orchestrator session that manages the others.
 Agents post decisions with images and video, Hindie answers on a card, and the answer goes back to that agent.
 When one Claude account hits its weekly limit, sessions move to the other account and carry on.
 
@@ -65,6 +65,20 @@ Agents ask for a decision with an MCP tool, and Hindie answers in the Decisions 
   New sessions start on the account with the most left unless Hindie picks one.
 - **No accounts added.** The app falls back to the box's normal login in `~/.claude/.credentials.json`, which is how CloudCLI works today.
 
+### Orchestrator
+
+One session can run the others, like Canopy's central orchestrator.
+Hindie marks a session as the orchestrator, and the server gives that session extra tools on the same in-process MCP server:
+
+- `list_sessions`: every session with its project, status, account and last activity.
+- `start_session`: a new session in a project, with a first prompt and an optional account.
+- `send_to_session`: queues a message into a session, delivered when it is idle.
+- `read_session`: the last messages of a session, so the orchestrator can check progress.
+- `stop_session`: stops a running turn.
+
+Other sessions get only the decision tools.
+The orchestrator posts its own decisions to the same inbox.
+
 ## Deploy
 
 On the box, as `ubuntu`:
@@ -102,6 +116,7 @@ A new session continues from the first unchecked item.
 - [ ] Decisions page in the UI
 - [ ] Accounts backend: token store, per-session account, limit detection and switching
 - [ ] Accounts page in the UI, account shown on each session
+- [ ] Orchestrator: session flag, management tools, a way to mark a session in the UI
 - [ ] End-to-end test on the box: an agent posts a decision with a video, answer it, agent continues
 - [ ] Hindie's one-time steps above
 
