@@ -1,5 +1,8 @@
 # Agent Desk
 
+> Superseded on 2026-10-21: Agent Desk is now a fork of T3 Code, NE1NN/t3code, branch `agent-desk`.
+> Read `docs/agent-desk/HANDOVER.md` there. This CloudCLI fork is kept only for reference.
+
 Agent Desk is Hindie's web app for running Claude Code agents on hindie-box.
 It has four parts: a session list, a decision inbox, multiple Claude accounts, and an orchestrator session that manages the others.
 Agents post decisions with images and video, Hindie answers on a card, and the answer goes back to that agent.
