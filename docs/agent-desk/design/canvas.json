@@ -1,0 +1,17 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-10-21T10:00:00Z"},
+  "title": "Agent Desk",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 1080, "title": "Decisions", "expand": "fill", "is_interactive": true},
+    "Sessions.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 1080, "title": "Sessions", "expand": "fill", "is_interactive": true},
+    "Accounts.dc.html": {"x": 3040, "y": 0, "w": 1440, "h": 1080, "title": "Accounts", "expand": "fill", "is_interactive": true}
+  },
+  "order": ["Main.dc.html", "Sessions.dc.html", "Accounts.dc.html"],
+  "notes": {
+    "flows": {"x": 0, "y": -300, "text": "Agent Desk: decisions, sessions, accounts", "kind": "title1", "maxW": 4480}
+  },
+  "designSystems": []
+}
