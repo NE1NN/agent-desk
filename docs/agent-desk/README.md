@@ -11,6 +11,19 @@ We add the decision inbox and multi-account support on top.
 Work lives on the `agent-desk` branch.
 `upstream` points at siteboon/claudecodeui so we can pull their fixes.
 
+## Open question: T3 Code instead of CloudCLI
+
+On 2026-10-21 Hindie asked about [T3 Code](https://github.com/pingdotgg/t3code) (MIT, web, native iOS and Android apps, desktop).
+It already has an MCP server that can start, message and stop threads (the orchestrator), multiple Claude accounts, visual HTML replies in threads, option questions, push notifications and a usage page.
+It lacks balancing across accounts and one inbox for questions from every thread.
+Forking it is costly: the official apps update the server to the newest npm release, and upstream changes daily.
+
+The proposal is to run T3 as shipped, use a pinned orchestrator thread as the decision inbox (visual reply page plus an option question per decision), and run balancing as a background service on the box.
+A demo ran in T3 on the box (a decision page with two renders and an option question), and it worked on desktop and phone widths.
+The agent used still frames; whether visual replies can play video is not checked yet.
+T3 is running ad hoc on the box (`t3 serve --host 100.74.186.66`, port 3773, log `~/t3-serve.log`), not as a service yet.
+Waiting on Hindie's call before building further.
+
 ## Where it runs
 
 It runs on hindie-box (Ubuntu, EC2 i-069bf8c49e5f996ab) as the `ubuntu` user.
