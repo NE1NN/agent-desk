@@ -2,16 +2,24 @@
   "v": 3,
   "createdOnFiles": {"v": 1, "at": "2026-10-21T10:00:00Z"},
   "title": "Agent Desk",
-  "launch": {"view": "canvas"},
-  "pages": [],
+  "launch": {"view": "canvas", "page": "t3fork"},
+  "pages": [
+    {"id": "t3fork", "name": "T3 fork"},
+    {"id": "draft1", "name": "First draft"}
+  ],
   "boards": {
-    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 1080, "title": "Decisions", "expand": "fill", "is_interactive": true},
-    "Sessions.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 1080, "title": "Sessions", "expand": "fill", "is_interactive": true},
-    "Accounts.dc.html": {"x": 3040, "y": 0, "w": 1440, "h": 1080, "title": "Accounts", "expand": "fill", "is_interactive": true}
+    "T3Decisions.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 1100, "title": "T3 · Decisions tab", "page": "t3fork", "expand": "fill", "is_interactive": true},
+    "T3PhoneQueue.dc.html": {"x": 1520, "y": 0, "w": 390, "h": 844, "title": "T3 · Phone queue", "page": "t3fork", "is_interactive": true},
+    "T3PhoneDecision.dc.html": {"x": 1990, "y": 0, "w": 390, "h": 1560, "title": "T3 · Phone decision", "page": "t3fork", "is_interactive": true},
+    "T3Accounts.dc.html": {"x": 2460, "y": 0, "w": 1440, "h": 960, "title": "T3 · Settings › Accounts", "page": "t3fork", "expand": "fill", "is_interactive": true},
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 1080, "title": "Decisions", "page": "draft1", "expand": "fill", "is_interactive": true},
+    "Sessions.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 1080, "title": "Sessions", "page": "draft1", "expand": "fill", "is_interactive": true},
+    "Accounts.dc.html": {"x": 3040, "y": 0, "w": 1440, "h": 1080, "title": "Accounts", "page": "draft1", "expand": "fill", "is_interactive": true}
   },
-  "order": ["Main.dc.html", "Sessions.dc.html", "Accounts.dc.html"],
+  "order": ["T3Decisions.dc.html", "T3PhoneQueue.dc.html", "T3PhoneDecision.dc.html", "T3Accounts.dc.html", "Main.dc.html", "Sessions.dc.html", "Accounts.dc.html"],
   "notes": {
-    "flows": {"x": 0, "y": -300, "text": "Agent Desk: decisions, sessions, accounts", "kind": "title1", "maxW": 4480}
+    "flows": {"x": 0, "y": -300, "text": "Agent Desk: decisions, sessions, accounts", "kind": "title1", "maxW": 4480, "page": "draft1"},
+    "t3title": {"x": 0, "y": -300, "text": "Forked T3 Code: Decisions tab, phone, accounts", "kind": "title1", "maxW": 3900, "page": "t3fork"}
   },
   "designSystems": []
 }
